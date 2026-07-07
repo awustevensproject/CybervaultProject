@@ -3,6 +3,7 @@ from functools import wraps
 
 from flask import redirect, request, session, url_for
 
+from database.users import get_user
 from utils.security_log import log_event
 
 
@@ -31,16 +32,20 @@ def role_required(role: str):
     def decorator(view):
         @wraps(view)
         def wrapped(*args, **kwargs):
-            if not session.get("username"):
+            username = session.get("username")
+            if not username:
                 return _deny(f"login_required:{request.path}")
-            if session.get("role") != role:
+
+            user = get_user(username)
+            if not user or user.get("role") != role:
                 log_event(
                     "access_denied",
-                    username=session.get("username"),
+                    username=username,
                     ip=client_ip(),
                     details=f"role_required:{role}:{request.path}",
                 )
                 return redirect(url_for("dashboard"))
+
             return view(*args, **kwargs)
 
         return wrapped

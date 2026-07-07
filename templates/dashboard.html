@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Dashboard — CyberVault{% endblock %}
+{% block title %}Dashboard — Cybervault{% endblock %}
 
 {% block card %}
 <div class="card-header">
@@ -12,6 +12,7 @@
   <a href="{{ url_for('admin') }}" class="btn-primary">Admin Panel</a>
   {% endif %}
   <form method="POST" action="{{ url_for('logout') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
     <button type="submit" class="btn-secondary">Sign Out</button>
   </form>
 </div>

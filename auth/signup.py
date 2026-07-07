@@ -1,7 +1,7 @@
 import re
 
-from database.users import create_user, email_exists, username_exists
-from utils.hibp import is_breached
+from database.users import create_user
+from utils.hibp import breach_issue
 from utils.password_policy import is_strong_password
 from utils.security_log import log_event
 
@@ -24,17 +24,10 @@ def register_user(username: str, email: str, password: str, ip: str | None = Non
         log_event("signup_failure", username=username, ip=ip, details="rejected")
         raise ValueError("weak_password")
 
-    if is_breached(password):
-        log_event("signup_failure", username=username, ip=ip, details="breached_password")
-        raise ValueError("password_breached")
-
-    if username_exists(username):
-        log_event("signup_failure", username=username, ip=ip, details="rejected")
-        raise ValueError("username_taken")
-
-    if email_exists(email):
-        log_event("signup_failure", username=username, ip=ip, details="rejected")
-        raise ValueError("email_taken")
+    breach_error = breach_issue(password)
+    if breach_error:
+        log_event("signup_failure", username=username, ip=ip, details=breach_error)
+        raise ValueError(breach_error)
 
     try:
         user = create_user(username, email, password)

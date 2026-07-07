@@ -30,6 +30,18 @@ def pwned_count(password: str) -> int | None:
     return 0
 
 
-def is_breached(password: str) -> bool:
+def is_breached(password: str, *, fail_closed: bool = False) -> bool:
     count = pwned_count(password)
-    return count is not None and count > 0
+    if count is None:
+        return fail_closed
+    return count > 0
+
+
+def breach_issue(password: str) -> str | None:
+    """Return signup error code if password fails breach policy."""
+    count = pwned_count(password)
+    if count is None:
+        return "breach_check_failed"
+    if count > 0:
+        return "password_breached"
+    return None

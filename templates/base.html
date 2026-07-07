@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{% block title %}CyberVault{% endblock %}</title>
+  <title>{% block title %}Cybervault{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -170,8 +170,23 @@
       text-align: center;
     }
 
+    .flash-success {
+      background: rgba(52, 199, 89, 0.1);
+      border: 1px solid rgba(52, 199, 89, 0.25);
+      border-radius: var(--radius);
+      padding: 9px 11px;
+      margin-bottom: 14px;
+      font-size: 0.75rem;
+      color: #34c759;
+      text-align: center;
+    }
+
     .password-wrap { position: relative; }
-    .password-wrap input { padding-right: 40px; }
+    .password-wrap input {
+      padding-right: 40px;
+      user-select: text;
+      -webkit-user-select: text;
+    }
 
     .toggle-pw {
       position: absolute;
@@ -210,6 +225,13 @@
     }
 
     .btn-primary:hover { background: var(--accent-hover); }
+
+    .btn-primary:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-primary:disabled:hover { background: var(--accent); }
 
     .btn-secondary,
     button.btn-secondary {
@@ -359,10 +381,34 @@
       });
 
       document.querySelectorAll('form').forEach(function (form) {
-        form.addEventListener('submit', function () {
-          if (!reduced) document.body.classList.add('page-exit');
+        form.addEventListener('submit', function (e) {
+          setTimeout(function () {
+            if (e.defaultPrevented) return;
+            if (!reduced) document.body.classList.add('page-exit');
+          }, 0);
         });
       });
+
+      document.querySelectorAll('.toggle-pw').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var input = document.getElementById(btn.dataset.target);
+          if (!input) return;
+          input.type = input.type === 'password' ? 'text' : 'password';
+        });
+      });
+
+      var loginForm = document.getElementById('login-form');
+      if (loginForm) {
+        var loginSubmit = document.getElementById('login-submit');
+        var loginUsername = document.getElementById('username');
+        var loginPassword = document.getElementById('password');
+        function updateLoginSubmit() {
+          loginSubmit.disabled = !(loginUsername.value.trim() && loginPassword.value);
+        }
+        loginUsername.addEventListener('input', updateLoginSubmit);
+        loginPassword.addEventListener('input', updateLoginSubmit);
+        updateLoginSubmit();
+      }
     })();
   </script>
   {% block scripts %}{% endblock %}

@@ -1,7 +1,15 @@
+import hashlib
 import os
 from datetime import datetime, timezone
 
 LOG_PATH = os.path.join(os.path.dirname(__file__), "..", "logs", "security.log")
+
+
+def _privacy_ip(ip: str | None) -> str:
+    if not ip or ip == "unknown":
+        return "unknown"
+    digest = hashlib.sha256(ip.encode("utf-8")).hexdigest()
+    return f"hash:{digest[:12]}"
 
 
 def log_event(
@@ -13,7 +21,7 @@ def log_event(
 ):
     os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    line = f"{timestamp} | {event_type} | user={username or 'unknown'} | ip={ip or 'unknown'}"
+    line = f"{timestamp} | {event_type} | user={username or 'unknown'} | ip={_privacy_ip(ip)}"
     if user_id:
         line += f" | id={user_id}"
     if details:

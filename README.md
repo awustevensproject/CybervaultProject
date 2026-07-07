@@ -44,12 +44,14 @@ Only work if Supabase is not configured in `.env`:
 
 ## Security
 
-- Bcrypt password hashing
+- Bcrypt password hashing (unique salt per password)
+- CSRF tokens on all POST forms and the strength API
 - zxcvbn password strength scoring (live meter + signup validation)
-- Have I Been Pwned breach check on signup
-- Rate limiting on login and signup
-- Security log at `logs/security.log`
-- Login required for dashboard and admin pages
-- Supabase RLS on the users table
+- Have I Been Pwned breach check on signup (fail-closed if unavailable)
+- Rate limiting on login, signup, and password-strength API
+- Security log at `logs/security.log` (local only, IPs stored as hashes)
+- Session cookies: HttpOnly, SameSite=Lax, 8-hour lifetime
+- Security headers (CSP, X-Frame-Options, nosniff)
+- Admin role re-checked from database on each request
 
 Do not commit `.env`. Use `.env.example` for placeholders only.

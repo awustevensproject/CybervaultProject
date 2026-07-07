@@ -3,6 +3,7 @@ AUTH_ERRORS = {
     "bad_credentials": "Invalid Supabase key — check SUPABASE_SERVICE_ROLE_KEY in your .env file.",
     "database_error": "Database error. Check your Supabase connection and try again.",
     "invalid_credentials": "Invalid username or password.",
+    "csrf_invalid": "Your session expired. Please try again.",
 }
 
 SIGNUP_ERRORS = {
@@ -12,6 +13,8 @@ SIGNUP_ERRORS = {
     "invalid_username": "Username must be 3–20 characters (letters, numbers, _).",
     "weak_password": "Password is too weak — at least 10 characters, upper, lower, number, and a zxcvbn score of 3+.",
     "password_breached": "That password has appeared in a data breach. Please choose a different one.",
+    "breach_check_failed": "Could not verify the password against breach data. Try again in a moment.",
+    "csrf_invalid": "Your session expired. Please try again.",
     "invalid_email": "Please enter a valid email address (e.g. you@gmail.com).",
     "signup_failed": "Could not create account. Please try again.",
 }

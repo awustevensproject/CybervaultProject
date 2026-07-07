@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Sign In — CyberVault{% endblock %}
+{% block title %}Sign In — Cybervault{% endblock %}
 
 {% block card %}
 <div class="card-header">
@@ -7,11 +7,16 @@
   <p>Enter your username and password.</p>
 </div>
 
+{% if success %}
+<div class="flash-success">{{ success }}</div>
+{% endif %}
+
 {% if error %}
 <div class="flash-error">{{ error }}</div>
 {% endif %}
 
-<form method="POST" action="{{ url_for('login') }}">
+<form method="POST" action="{{ url_for('login') }}" id="login-form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
   <div class="field">
     <label for="username">Username</label>
     <input type="text" id="username" name="username" placeholder="johndoe" autocomplete="username" required
@@ -28,7 +33,7 @@
     </div>
   </div>
 
-  <button type="submit" class="btn-primary">Sign In</button>
+  <button type="submit" class="btn-primary" id="login-submit" disabled>Sign In</button>
 </form>
 
 <div class="card-footer">
@@ -36,13 +41,4 @@
 </div>
 {% endblock %}
 
-{% block scripts %}
-<script>
-  document.querySelectorAll('.toggle-pw').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const input = document.getElementById(btn.dataset.target);
-      input.type = input.type === 'password' ? 'text' : 'password';
-    });
-  });
-</script>
-{% endblock %}
+{% block scripts %}{% endblock %}

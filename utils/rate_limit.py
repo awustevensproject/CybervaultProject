@@ -2,11 +2,14 @@ import json
 import os
 import time
 
-MIN_INTERVAL_SEC = 2.0
-MAX_PER_MINUTE = 10
-WINDOW_SEC = 60
-
 _STORE_PATH = os.path.join(os.path.dirname(__file__), "..", "logs", "rate_limit.json")
+_WINDOW_SEC = 60
+
+_LIMITS = {
+    "login": (2.0, 10),
+    "signup": (2.0, 10),
+    "password_strength": (0.12, 120),
+}
 
 
 def _load() -> dict[str, list[float]]:
@@ -25,16 +28,22 @@ def _save(data: dict[str, list[float]]) -> None:
 
 
 def _prune(times: list[float], now: float) -> list[float]:
-    cutoff = now - WINDOW_SEC
-    return [t for t in times if t > cutoff]
+    return [t for t in times if t > now - _WINDOW_SEC]
 
 
-def _check_key(data: dict[str, list[float]], key: str, now: float) -> tuple[bool, str | None]:
+def _check_key(
+    data: dict[str, list[float]],
+    key: str,
+    now: float,
+    *,
+    min_interval: float,
+    max_per_minute: int,
+) -> tuple[bool, str | None]:
     recent = _prune(data.get(key, []), now)
-    if recent and (now - recent[-1]) < MIN_INTERVAL_SEC:
-        wait = MIN_INTERVAL_SEC - (now - recent[-1])
+    if recent and (now - recent[-1]) < min_interval:
+        wait = min_interval - (now - recent[-1])
         return False, f"Slow down — wait {max(1, int(wait + 0.5))} second(s) and try again."
-    if len(recent) >= MAX_PER_MINUTE:
+    if len(recent) >= max_per_minute:
         return False, "Too many attempts this minute. Wait 60 seconds and try again."
     recent.append(now)
     data[key] = recent
@@ -48,13 +57,22 @@ def check_rate_limit(
     subject: str | None = None,
 ) -> tuple[bool, str | None]:
     ip = ip or "unknown"
+    min_interval, max_per_minute = _LIMITS.get(action, _LIMITS["login"])
     data = _load()
     now = time.time()
 
-    for key in (f"{ip}:{action}", f"user:{action}:{subject.lower()}" if subject else None):
-        if not key:
-            continue
-        allowed, message = _check_key(data, key, now)
+    keys = [f"{ip}:{action}"]
+    if subject:
+        keys.append(f"user:{action}:{subject.lower()}")
+
+    for key in keys:
+        allowed, message = _check_key(
+            data,
+            key,
+            now,
+            min_interval=min_interval,
+            max_per_minute=max_per_minute,
+        )
         if not allowed:
             _save(data)
             return False, message

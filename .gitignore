@@ -7,5 +7,4 @@ __pycache__/
 .DS_Store
 .venv/
 venv/
-logs/*.log
-logs/rate_limit.json
+logs/

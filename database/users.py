@@ -26,10 +26,18 @@ def _from_db(username: str) -> dict | None:
     return user
 
 
+def _fake_user(username: str) -> dict | None:
+    needle = username.lower()
+    for key, user in _fake_users.items():
+        if key.lower() == needle:
+            return user
+    return None
+
+
 def get_user(username: str) -> dict | None:
     if database_configured():
         return _from_db(username)
-    return _fake_users.get(username)
+    return _fake_user(username)
 
 
 def username_exists(username: str) -> bool:
@@ -37,7 +45,7 @@ def username_exists(username: str) -> bool:
         from database.table_users import username_exists as exists
 
         return exists(username)
-    return username.lower() in {k.lower() for k in _fake_users}
+    return _fake_user(username) is not None
 
 
 def email_exists(email: str) -> bool:
