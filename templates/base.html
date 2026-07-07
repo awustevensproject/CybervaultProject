@@ -11,8 +11,7 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --desktop: #0a0a0c;
-      --window: #1c1c1e;
+      --bg: #0a0a0c;
       --surface-elevated: #2c2c2e;
       --text: #f5f5f7;
       --text-secondary: #98989d;
@@ -22,126 +21,69 @@
       --input-border: rgba(255, 255, 255, 0.14);
       --placeholder: #636366;
       --error: #ff3b30;
-      --shadow: 0 24px 80px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.06);
       --focus-ring: rgba(0, 113, 227, 0.35);
       --mesh-1: rgba(0, 113, 227, 0.22);
       --mesh-2: rgba(0, 113, 227, 0.12);
-      --strength-bg: #3a3a3c;
       --radius: 10px;
       --radius-pill: 980px;
       --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      --app-size: 600px;
-      --titlebar-h: 44px;
-      --footer-h: 30px;
     }
 
     html, body {
-      height: 100%;
+      min-height: 100%;
       font-family: var(--font);
-      background: var(--desktop);
       color: var(--text);
       -webkit-font-smoothing: antialiased;
-      overflow: hidden;
     }
 
-    .desktop {
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    body {
       background:
-        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(0, 113, 227, 0.04), transparent),
-        var(--desktop);
-    }
-
-    /* Fixed square app window */
-    .app-window {
-      width: var(--app-size);
-      height: var(--app-size);
-      display: flex;
-      flex-direction: column;
-      border-radius: 14px;
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      flex-shrink: 0;
-      opacity: 0;
-      animation: appIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    }
-
-    @keyframes appIn {
-      from { opacity: 0; transform: scale(0.92) translateY(16px); }
-      to   { opacity: 1; transform: scale(1) translateY(0); }
-    }
-
-    .app-titlebar {
-      height: var(--titlebar-h);
-      background: #2d2d2f;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      display: flex;
-      align-items: center;
-      padding: 0 14px;
-      gap: 10px;
-      flex-shrink: 0;
-      user-select: none;
-    }
-
-    .traffic-lights { display: flex; gap: 7px; }
-
-    .traffic-lights span {
-      width: 11px;
-      height: 11px;
-      border-radius: 50%;
-    }
-
-    .traffic-lights .close { background: #ff5f57; }
-    .traffic-lights .min   { background: #febc2e; }
-    .traffic-lights .max   { background: #28c840; }
-
-    .titlebar-name {
-      flex: 1;
-      text-align: center;
-      font-size: 0.8125rem;
-      font-weight: 500;
-      color: var(--text-secondary);
-      margin-right: 52px;
-    }
-
-    /* Mesh background contained in square body */
-    .app-body {
-      flex: 1;
-      min-height: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      background:
-        radial-gradient(ellipse 80% 60% at 50% 20%, var(--mesh-1), transparent),
+        radial-gradient(ellipse 80% 60% at 50% 15%, var(--mesh-1), transparent),
         radial-gradient(ellipse 55% 45% at 90% 90%, var(--mesh-2), transparent),
-        var(--window);
+        radial-gradient(ellipse 50% 40% at 10% 85%, rgba(0, 113, 227, 0.06), transparent),
+        var(--bg);
+      background-attachment: fixed;
     }
 
-    .app-center {
+    .page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
+    }
+
+    .page-ui {
       width: 100%;
       max-width: 320px;
-      max-height: 100%;
-      padding: 0 24px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
       text-align: center;
-      overflow: hidden;
+      opacity: 0;
+      transition: opacity 0.32s ease;
+    }
+
+    .page-ui.is-visible {
+      opacity: 1;
+    }
+
+    body.page-exit .page-ui {
+      opacity: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .page-ui {
+        opacity: 1;
+        transition: none;
+      }
     }
 
     .app-logo {
-      display: flex;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
       margin-bottom: 28px;
       text-decoration: none;
       color: inherit;
-      flex-shrink: 0;
     }
 
     .logo-mark {
@@ -165,7 +107,7 @@
 
     .card-panel {
       width: 100%;
-      min-width: 0;
+      text-align: center;
     }
 
     .card-header { margin-bottom: 24px; }
@@ -253,7 +195,6 @@
       align-items: center;
       justify-content: center;
       width: 100%;
-      max-width: 100%;
       height: 42px;
       margin-top: 4px;
       font-family: var(--font);
@@ -265,14 +206,13 @@
       border-radius: var(--radius-pill);
       cursor: pointer;
       text-decoration: none;
-      box-sizing: border-box;
-      transition: background 0.2s, transform 0.1s;
+      transition: background 0.2s;
     }
 
     .btn-primary:hover { background: var(--accent-hover); }
-    .btn-primary:active { transform: scale(0.98); }
 
-    .btn-secondary {
+    .btn-secondary,
+    button.btn-secondary {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -313,113 +253,118 @@
 
     .link:hover { opacity: 0.75; }
 
-    .forgot {
-      display: block;
-      margin-top: 14px;
-      font-size: 0.8125rem;
-    }
-
-    .strength {
-      height: 3px;
-      border-radius: 2px;
-      background: var(--strength-bg);
-      margin-top: 8px;
-      overflow: hidden;
-      display: none;
-    }
-
-    .strength.show { display: block; }
-
-    .strength-bar {
-      height: 100%;
-      width: 0%;
-      border-radius: 2px;
-      transition: width 0.3s, background 0.3s;
-    }
-
-    .strength-label {
-      font-size: 0.6875rem;
-      color: var(--text-secondary);
-      margin-top: 4px;
-      display: none;
-    }
-
-    .strength-label.show { display: block; }
-
-    .app-footer {
-      height: var(--footer-h);
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.625rem;
-      color: var(--text-secondary);
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      background: rgba(0, 0, 0, 0.2);
-    }
-
-    .btn-stack {
+    .vault-list {
+      width: 100%;
+      text-align: left;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      width: 100%;
-      min-width: 0;
+      gap: 10px;
+      margin-bottom: 16px;
     }
 
-    /* Native desktop app — fill the window exactly */
-    body.native .desktop {
-      background: var(--window);
+    .vault-item {
+      padding: 12px 14px;
+      border-radius: var(--radius);
+      background: var(--surface-elevated);
+      border: 1px solid var(--input-border);
     }
 
-    body.native .app-window {
-      width: 100%;
-      height: 100%;
-      border-radius: 0;
-      box-shadow: none;
-      animation: none;
-      opacity: 1;
+    .vault-item strong {
+      display: block;
+      font-size: 0.875rem;
+      margin-bottom: 4px;
     }
 
-    body.native .app-titlebar {
-      display: none;
+    .vault-item span {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 0.8125rem;
     }
 
     {% block extra_styles %}{% endblock %}
   </style>
 </head>
-<body class="{% if native_app %}native{% endif %}">
-  <div class="desktop">
-    <div class="app-window">
-      <div class="app-titlebar">
-        <div class="traffic-lights">
-          <span class="close"></span>
-          <span class="min"></span>
-          <span class="max"></span>
+<body>
+  <div class="page">
+    <div class="page-ui" id="page-ui">
+      {% block logo %}
+      <a href="{{ url_for('home') }}" class="app-logo">
+        <div class="logo-mark">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L3 7v10l9 5 9-5V7L12 2zm0 2.18l6.9 3.83L12 11.84 5.1 8.01 12 4.18zM5 9.27l6 3.33v7.07l-6-3.33V9.27zm14 0v7.07l-6 3.33v-7.07l6-3.33z"/>
+          </svg>
         </div>
-        <span class="titlebar-name">CyberVault</span>
-      </div>
+        <span class="logo-text">CyberVault</span>
+      </a>
+      {% endblock %}
 
-      <div class="app-body">
-        <div class="app-center">
-          {% block logo %}
-          <a href="{{ url_for('home') }}" class="app-logo">
-            <div class="logo-mark">
-              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L3 7v10l9 5 9-5V7L12 2zm0 2.18l6.9 3.83L12 11.84 5.1 8.01 12 4.18zM5 9.27l6 3.33v7.07l-6-3.33V9.27zm14 0v7.07l-6 3.33v-7.07l6-3.33z"/>
-              </svg>
-            </div>
-            <span class="logo-text">CyberVault</span>
-          </a>
-          {% endblock %}
-
-          <div class="card-panel">
-            {% block card %}{% endblock %}
-          </div>
-        </div>
+      <div class="card-panel">
+        {% block card %}{% endblock %}
       </div>
     </div>
   </div>
 
+  <script>
+    (function () {
+      var pageUi = document.getElementById('page-ui');
+      var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function showPage() {
+        document.body.classList.remove('page-exit');
+        if (pageUi && !reduced) {
+          requestAnimationFrame(function () {
+            pageUi.classList.add('is-visible');
+          });
+        } else if (pageUi) {
+          pageUi.classList.add('is-visible');
+        }
+      }
+
+      function fadeOutAndGo(fn) {
+        if (reduced) {
+          fn();
+          return;
+        }
+        document.body.classList.add('page-exit');
+        setTimeout(fn, 320);
+      }
+
+      showPage();
+      window.addEventListener('pageshow', function (e) {
+        document.body.classList.remove('page-exit');
+        if (!e.persisted || !pageUi || reduced) return;
+        pageUi.classList.remove('is-visible');
+        requestAnimationFrame(function () {
+          pageUi.classList.add('is-visible');
+        });
+      });
+
+      document.querySelectorAll('a[href]').forEach(function (link) {
+        var href = link.getAttribute('href');
+        if (!href || href.charAt(0) === '#') return;
+        if (link.target === '_blank' || link.hasAttribute('download')) return;
+        link.addEventListener('click', function (e) {
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+          var url;
+          try { url = new URL(href, window.location.href); } catch (_) { return; }
+          if (url.origin !== window.location.origin) return;
+          e.preventDefault();
+          fadeOutAndGo(function () { window.location.href = url.href; });
+        });
+      });
+
+      document.querySelectorAll('form').forEach(function (form) {
+        form.addEventListener('submit', function () {
+          if (!reduced) document.body.classList.add('page-exit');
+        });
+      });
+    })();
+  </script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

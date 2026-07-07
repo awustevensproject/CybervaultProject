@@ -1,2 +1,5 @@
 flask
 pywebview
+supabase
+python-dotenv
+bcrypt

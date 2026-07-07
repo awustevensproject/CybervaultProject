@@ -4,10 +4,16 @@
 {% block card %}
 <div class="card-header">
   <h1>Welcome, {{ username }}</h1>
-  <p>You are signed in to CyberVault.</p>
+  <p>You are signed in{% if role == 'admin' %} as an administrator{% endif %}.</p>
 </div>
 
 <div class="btn-stack">
-  <a href="{{ url_for('logout') }}" class="btn-secondary">Sign Out</a>
+  <a href="{{ url_for('vault') }}" class="btn-primary">Open Vault</a>
+  {% if role == 'admin' %}
+  <a href="{{ url_for('admin') }}" class="btn-secondary">Admin Panel</a>
+  {% endif %}
+  <form method="POST" action="{{ url_for('logout') }}">
+    <button type="submit" class="btn-secondary">Sign Out</button>
+  </form>
 </div>
 {% endblock %}

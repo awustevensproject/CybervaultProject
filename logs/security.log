@@ -1,5 +1,0 @@
-# This file will store login attempts (future use)
-# Day 1: leave empty2026-07-06T23:55:10Z | login_success | user=admin | ip=127.0.0.1
-2026-07-06T23:55:37Z | login_failure | user=zfvfsvfa@gmail.com | ip=127.0.0.1 | user_not_found
-2026-07-06T23:55:47Z | login_success | user=admin | ip=127.0.0.1
-2026-07-06T23:56:01Z | logout | user=admin | ip=127.0.0.1

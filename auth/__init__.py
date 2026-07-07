@@ -1,1 +1,0 @@
-# Empty file (marks auth as a module)

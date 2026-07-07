@@ -1,106 +1,122 @@
 import os
 
-from flask import Flask, render_template, request, redirect, url_for, session
+from dotenv import load_dotenv
+from flask import Flask, redirect, render_template, request, session, url_for
 
 from auth.login import login_user
 from auth.signup import register_user
+from config import FLASK_DEBUG, SECRET_KEY, SESSION_COOKIE_SECURE
+from utils.access import client_ip, login_required, role_required
+from utils.errors import message_for
+from utils.rate_limit import check_rate_limit
 from utils.security_log import log_event
+from utils.session import start_session
+
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "dev-change-me-before-production")
+app.secret_key = SECRET_KEY
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=SESSION_COOKIE_SECURE,
+)
 
 
-@app.context_processor
-def inject_native():
-    return {"native_app": os.environ.get("CYBERVAULT_NATIVE") == "1"}
-
-
-def client_ip():
-    return request.headers.get("X-Forwarded-For", request.remote_addr)
+def _logged_in():
+    return bool(session.get("username"))
 
 
 @app.route("/")
 def home():
-    if session.get("username"):
+    if _logged_in():
         return redirect(url_for("dashboard"))
-    return redirect(url_for("login"))
+    return render_template("index.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    if session.get("username"):
+    if _logged_in():
         return redirect(url_for("dashboard"))
 
     error = None
-    email = ""
+    username = ""
 
     if request.method == "POST":
-        email = request.form.get("email", "").strip()
+        username = request.form.get("username", "").strip()
         password = request.form.get("password", "")
 
-        user = login_user(email, password, ip=client_ip())
+        allowed, rate_error = check_rate_limit(client_ip(), "login", subject=username)
+        if not allowed:
+            error = rate_error
+        else:
+            try:
+                user = login_user(username, password, ip=client_ip())
+            except ValueError as exc:
+                error = message_for(str(exc)) or message_for("invalid_credentials")
+                user = None
+            else:
+                if user:
+                    start_session(user)
+                    return redirect(url_for("dashboard"))
+                error = message_for("invalid_credentials")
 
-        if user:
-            session["username"] = user["username"]
-            session["role"] = user.get("role", "user")
-            return redirect(url_for("dashboard"))
-
-        error = "Invalid email or password."
-
-    return render_template("login.html", error=error, email=email)
+    return render_template("login.html", error=error, username=username)
 
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
-    if session.get("username"):
+    if _logged_in():
         return redirect(url_for("dashboard"))
 
     error = None
-    email = ""
-    username = ""
+    email = username = ""
 
     if request.method == "POST":
         email = request.form.get("email", "").strip()
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "")
 
-        try:
-            user = register_user(username, email, password, ip=client_ip())
-            session["username"] = user["username"]
-            session["role"] = user.get("role", "user")
-            return redirect(url_for("dashboard"))
-        except ValueError as exc:
-            code = str(exc)
-            if code == "username_taken":
-                error = "That username is already taken."
-            elif code == "email_taken":
-                error = "An account with that email already exists."
-            elif code == "invalid_username":
-                error = "Username must be 3–20 characters (letters, numbers, _)."
-            elif code == "weak_password":
-                error = "Password must be at least 8 characters."
-            else:
-                error = "Could not create account. Please try again."
+        allowed, rate_error = check_rate_limit(client_ip(), "signup", subject=username)
+        if not allowed:
+            error = rate_error
+        else:
+            try:
+                user = register_user(username, email, password, ip=client_ip())
+                start_session(user)
+                return redirect(url_for("dashboard"))
+            except ValueError as exc:
+                error = message_for(str(exc), signup=True) or message_for("signup_failed", signup=True)
 
     return render_template("signup.html", error=error, email=email, username=username)
 
 
 @app.route("/dashboard")
+@login_required
 def dashboard():
-    username = session.get("username")
-    if not username:
-        return redirect(url_for("login"))
-    return render_template("dashboard.html", username=username)
+    return render_template("dashboard.html", username=session["username"], role=session.get("role", "user"))
 
 
-@app.route("/logout")
+@app.route("/vault")
+@login_required
+def vault():
+    log_event("vault_access", username=session["username"], ip=client_ip(), user_id=session.get("user_id"))
+    return render_template("vault.html", username=session["username"], role=session.get("role", "user"))
+
+
+@app.route("/admin")
+@role_required("admin")
+def admin():
+    log_event("admin_access", username=session["username"], ip=client_ip(), user_id=session.get("user_id"))
+    return render_template("admin.html", username=session["username"])
+
+
+@app.route("/logout", methods=["POST"])
 def logout():
-    username = session.get("username")
-    log_event("logout", username=username, ip=client_ip())
+    log_event("logout", username=session.get("username"), ip=client_ip(), user_id=session.get("user_id"))
     session.clear()
     return redirect(url_for("login"))
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5001))
-    app.run(debug=True, port=port)
+    app.run(debug=FLASK_DEBUG, port=int(os.environ.get("PORT", 5001)))

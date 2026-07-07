@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Admin — CyberVault{% endblock %}
+
+{% block card %}
+<div class="card-header">
+  <h1>Admin panel</h1>
+  <p>Restricted area — {{ username }} only.</p>
+</div>
+
+<div class="vault-list">
+  <div class="vault-item">
+    <strong>User management</strong>
+    <span>Review accounts and roles</span>
+  </div>
+  <div class="vault-item">
+    <strong>Security audit log</strong>
+    <span>Login attempts and access events (stored locally on this machine)</span>
+  </div>
+</div>
+
+<a class="link back-link" href="{{ url_for('dashboard') }}">← Back</a>
+{% endblock %}
