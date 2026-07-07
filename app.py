@@ -97,13 +97,6 @@ def dashboard():
     return render_template("dashboard.html", username=session["username"], role=session.get("role", "user"))
 
 
-@app.route("/vault")
-@login_required
-def vault():
-    log_event("vault_access", username=session["username"], ip=client_ip(), user_id=session.get("user_id"))
-    return render_template("vault.html", username=session["username"], role=session.get("role", "user"))
-
-
 @app.route("/admin")
 @role_required("admin")
 def admin():

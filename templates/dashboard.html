@@ -8,9 +8,8 @@
 </div>
 
 <div class="btn-stack">
-  <a href="{{ url_for('vault') }}" class="btn-primary">Open Vault</a>
   {% if role == 'admin' %}
-  <a href="{{ url_for('admin') }}" class="btn-secondary">Admin Panel</a>
+  <a href="{{ url_for('admin') }}" class="btn-primary">Admin Panel</a>
   {% endif %}
   <form method="POST" action="{{ url_for('logout') }}">
     <button type="submit" class="btn-secondary">Sign Out</button>
