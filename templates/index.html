@@ -1,13 +1,16 @@
-## `templates/index.html`
+{% extends "base.html" %}
+{% block title %}CyberVault{% endblock %}
 
-```html
-<!DOCTYPE html>
-<html>
-<head>
-    <title>CyberVault</title>
-</head>
-<body>
-    <h1>Welcome to CyberVault</h1>
-    <a href="/login">Login</a>
-</body>
-</html>
+{% block logo %}{% endblock %}
+
+{% block card %}
+<div class="card-header">
+  <h1>CyberVault</h1>
+  <p>Your secure vault for credentials and protected data.</p>
+</div>
+
+<div class="btn-stack">
+  <a href="{{ url_for('login') }}" class="btn-primary">Sign In</a>
+  <a href="{{ url_for('signup') }}" class="btn-secondary">Create Account</a>
+</div>
+{% endblock %}

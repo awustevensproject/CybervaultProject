@@ -1,21 +1,20 @@
 from utils.hashing import simple_hash
-from database.users import get_user
+from database.users import get_user_by_email
+from utils.security_log import log_event
 
-def login_user(username, password):
-    """
-    Day 1: This is a MOCK authentication function.
-    We are NOT validating real credentials yet.
-    """
 
-    user = get_user(username)
+def login_user(email: str, password: str, ip: str | None = None) -> dict | None:
+    user = get_user_by_email(email)
 
     if not user:
-        return False
+        log_event("login_failure", username=email, ip=ip, details="user_not_found")
+        return None
 
-    # TODO (Day 2): Replace with proper hash comparison
     hashed_input = simple_hash(password)
 
-    if hashed_input == user["password"]:
-        return True
+    if hashed_input != user["password"]:
+        log_event("login_failure", username=user["username"], ip=ip, details="invalid_password")
+        return None
 
-    return False
+    log_event("login_success", username=user["username"], ip=ip)
+    return user

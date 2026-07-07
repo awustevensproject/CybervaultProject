@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — CyberVault{% endblock %}
+
+{% block card %}
+<div class="card-header">
+  <h1>Welcome, {{ username }}</h1>
+  <p>You are signed in to CyberVault.</p>
+</div>
+
+<div class="btn-stack">
+  <a href="{{ url_for('logout') }}" class="btn-secondary">Sign Out</a>
+</div>
+{% endblock %}

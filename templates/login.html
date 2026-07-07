@@ -1,21 +1,49 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Sign In — CyberVault{% endblock %}
 
-<h2>Login Page</h2>
+{% block card %}
+<div class="card-header">
+  <h1>Sign in</h1>
+  <p>Welcome back. Enter your credentials to continue.</p>
+</div>
 
-<form method="POST">
-    <label>Username:</label>
-    <input type="text" name="username"><br><br>
+{% if error %}
+<div class="flash-error">{{ error }}</div>
+{% endif %}
 
-    <label>Password:</label>
-    <input type="password" name="password"><br><br>
+<form method="POST" action="{{ url_for('login') }}">
+  <div class="field">
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email" required
+           value="{{ email or '' }}" />
+  </div>
 
-    <button type="submit">Login</button>
+  <div class="field">
+    <label for="password">Password</label>
+    <div class="password-wrap">
+      <input type="password" id="password" name="password" placeholder="Your password" autocomplete="current-password" required />
+      <button type="button" class="toggle-pw" data-target="password" aria-label="Show password">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <button type="submit" class="btn-primary">Sign In</button>
+  <a class="forgot link" href="#">Forgot password?</a>
 </form>
 
-</body>
-</html>
+<div class="card-footer">
+  Don't have an account? <a class="link" href="{{ url_for('signup') }}">Create one</a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.querySelectorAll('.toggle-pw').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.target);
+      input.type = input.type === 'password' ? 'text' : 'password';
+    });
+  });
+</script>
+{% endblock %}

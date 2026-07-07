@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Create Account — CyberVault{% endblock %}
+
+{% block card %}
+<div class="card-header">
+  <h1>Create account</h1>
+  <p>Join CyberVault. It only takes a moment.</p>
+</div>
+
+{% if error %}
+<div class="flash-error">{{ error }}</div>
+{% endif %}
+
+<form method="POST" action="{{ url_for('signup') }}">
+  <div class="field">
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email" required
+           value="{{ email or '' }}" />
+  </div>
+
+  <div class="field">
+    <label for="username">Username</label>
+    <input type="text" id="username" name="username" placeholder="johndoe" autocomplete="username" required
+           pattern="[a-zA-Z0-9_]{3,20}" title="3–20 characters: letters, numbers, underscore"
+           value="{{ username or '' }}" />
+  </div>
+
+  <div class="field">
+    <label for="password">Password</label>
+    <div class="password-wrap">
+      <input type="password" id="password" name="password" placeholder="Create a strong password" autocomplete="new-password" required minlength="8" />
+      <button type="button" class="toggle-pw" data-target="password" aria-label="Show password">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
+    <div class="strength" id="strength-bar-wrap"><div class="strength-bar" id="strength-bar"></div></div>
+    <div class="strength-label" id="strength-label"></div>
+  </div>
+
+  <button type="submit" class="btn-primary">Create Account</button>
+</form>
+
+<div class="card-footer">
+  Already have an account? <a class="link" href="{{ url_for('login') }}">Sign in</a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.querySelectorAll('.toggle-pw').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.target);
+      input.type = input.type === 'password' ? 'text' : 'password';
+    });
+  });
+
+  const pw = document.getElementById('password');
+  const bar = document.getElementById('strength-bar');
+  const wrap = document.getElementById('strength-bar-wrap');
+  const label = document.getElementById('strength-label');
+
+  pw.addEventListener('input', () => {
+    const v = pw.value;
+    if (!v) { wrap.classList.remove('show'); label.classList.remove('show'); return; }
+    wrap.classList.add('show');
+    label.classList.add('show');
+    let score = 0;
+    if (v.length >= 8) score++;
+    if (v.length >= 12) score++;
+    if (/[A-Z]/.test(v) && /[a-z]/.test(v)) score++;
+    if (/\d/.test(v)) score++;
+    if (/[^A-Za-z0-9]/.test(v)) score++;
+    const levels = [
+      { w: '25%', c: '#ff3b30', t: 'Weak' },
+      { w: '50%', c: '#ff9500', t: 'Fair' },
+      { w: '75%', c: '#ffcc00', t: 'Good' },
+      { w: '100%', c: '#34c759', t: 'Strong' },
+    ];
+    const lvl = levels[Math.min(Math.max(score - 1, 0), 3)];
+    bar.style.width = lvl.w;
+    bar.style.background = lvl.c;
+    label.textContent = lvl.t;
+  });
+</script>
+{% endblock %}

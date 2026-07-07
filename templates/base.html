@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}CyberVault{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --desktop: #0a0a0c;
+      --window: #1c1c1e;
+      --surface-elevated: #2c2c2e;
+      --text: #f5f5f7;
+      --text-secondary: #98989d;
+      --accent: #0071e3;
+      --accent-hover: #0077ed;
+      --border: rgba(255, 255, 255, 0.1);
+      --input-border: rgba(255, 255, 255, 0.14);
+      --placeholder: #636366;
+      --error: #ff3b30;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.06);
+      --focus-ring: rgba(0, 113, 227, 0.35);
+      --mesh-1: rgba(0, 113, 227, 0.22);
+      --mesh-2: rgba(0, 113, 227, 0.12);
+      --strength-bg: #3a3a3c;
+      --radius: 10px;
+      --radius-pill: 980px;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --app-size: 600px;
+      --titlebar-h: 44px;
+      --footer-h: 30px;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font);
+      background: var(--desktop);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+    }
+
+    .desktop {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(0, 113, 227, 0.04), transparent),
+        var(--desktop);
+    }
+
+    /* Fixed square app window */
+    .app-window {
+      width: var(--app-size);
+      height: var(--app-size);
+      display: flex;
+      flex-direction: column;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      flex-shrink: 0;
+      opacity: 0;
+      animation: appIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes appIn {
+      from { opacity: 0; transform: scale(0.92) translateY(16px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .app-titlebar {
+      height: var(--titlebar-h);
+      background: #2d2d2f;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      gap: 10px;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    .traffic-lights { display: flex; gap: 7px; }
+
+    .traffic-lights span {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+    }
+
+    .traffic-lights .close { background: #ff5f57; }
+    .traffic-lights .min   { background: #febc2e; }
+    .traffic-lights .max   { background: #28c840; }
+
+    .titlebar-name {
+      flex: 1;
+      text-align: center;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-right: 52px;
+    }
+
+    /* Mesh background contained in square body */
+    .app-body {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 20%, var(--mesh-1), transparent),
+        radial-gradient(ellipse 55% 45% at 90% 90%, var(--mesh-2), transparent),
+        var(--window);
+    }
+
+    .app-center {
+      width: 100%;
+      max-width: 320px;
+      max-height: 100%;
+      padding: 0 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .app-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 28px;
+      text-decoration: none;
+      color: inherit;
+      flex-shrink: 0;
+    }
+
+    .logo-mark {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #0071e3 0%, #005bb5 100%);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0, 113, 227, 0.35);
+    }
+
+    .logo-mark svg { width: 18px; height: 18px; fill: white; }
+
+    .logo-text {
+      font-size: 1.125rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .card-panel {
+      width: 100%;
+      min-width: 0;
+    }
+
+    .card-header { margin-bottom: 24px; }
+
+    .card-header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      margin-bottom: 6px;
+    }
+
+    .card-header p {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+
+    .field {
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .field input {
+      width: 100%;
+      height: 42px;
+      padding: 0 13px;
+      font-family: var(--font);
+      font-size: 0.9375rem;
+      color: var(--text);
+      background: var(--surface-elevated);
+      border: 1px solid var(--input-border);
+      border-radius: var(--radius);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .field input::placeholder { color: var(--placeholder); }
+
+    .field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--focus-ring);
+    }
+
+    .flash-error {
+      background: rgba(255, 59, 48, 0.1);
+      border: 1px solid rgba(255, 59, 48, 0.25);
+      border-radius: var(--radius);
+      padding: 9px 11px;
+      margin-bottom: 14px;
+      font-size: 0.75rem;
+      color: var(--error);
+      text-align: center;
+    }
+
+    .password-wrap { position: relative; }
+    .password-wrap input { padding-right: 40px; }
+
+    .toggle-pw {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-secondary);
+      padding: 4px;
+      display: flex;
+      align-items: center;
+    }
+
+    .toggle-pw:hover { color: var(--text); }
+
+    .btn-primary,
+    a.btn-primary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 100%;
+      height: 42px;
+      margin-top: 4px;
+      font-family: var(--font);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: white;
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      text-decoration: none;
+      box-sizing: border-box;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-primary:active { transform: scale(0.98); }
+
+    .btn-secondary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 42px;
+      font-family: var(--font);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--accent);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.05); }
+
+    .btn-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .card-footer {
+      margin-top: 20px;
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+    }
+
+    .link {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .link:hover { opacity: 0.75; }
+
+    .forgot {
+      display: block;
+      margin-top: 14px;
+      font-size: 0.8125rem;
+    }
+
+    .strength {
+      height: 3px;
+      border-radius: 2px;
+      background: var(--strength-bg);
+      margin-top: 8px;
+      overflow: hidden;
+      display: none;
+    }
+
+    .strength.show { display: block; }
+
+    .strength-bar {
+      height: 100%;
+      width: 0%;
+      border-radius: 2px;
+      transition: width 0.3s, background 0.3s;
+    }
+
+    .strength-label {
+      font-size: 0.6875rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+      display: none;
+    }
+
+    .strength-label.show { display: block; }
+
+    .app-footer {
+      height: var(--footer-h);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.625rem;
+      color: var(--text-secondary);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      min-width: 0;
+    }
+
+    /* Native desktop app — fill the window exactly */
+    body.native .desktop {
+      background: var(--window);
+    }
+
+    body.native .app-window {
+      width: 100%;
+      height: 100%;
+      border-radius: 0;
+      box-shadow: none;
+      animation: none;
+      opacity: 1;
+    }
+
+    body.native .app-titlebar {
+      display: none;
+    }
+
+    {% block extra_styles %}{% endblock %}
+  </style>
+</head>
+<body class="{% if native_app %}native{% endif %}">
+  <div class="desktop">
+    <div class="app-window">
+      <div class="app-titlebar">
+        <div class="traffic-lights">
+          <span class="close"></span>
+          <span class="min"></span>
+          <span class="max"></span>
+        </div>
+        <span class="titlebar-name">CyberVault</span>
+      </div>
+
+      <div class="app-body">
+        <div class="app-center">
+          {% block logo %}
+          <a href="{{ url_for('home') }}" class="app-logo">
+            <div class="logo-mark">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L3 7v10l9 5 9-5V7L12 2zm0 2.18l6.9 3.83L12 11.84 5.1 8.01 12 4.18zM5 9.27l6 3.33v7.07l-6-3.33V9.27zm14 0v7.07l-6 3.33v-7.07l6-3.33z"/>
+              </svg>
+            </div>
+            <span class="logo-text">CyberVault</span>
+          </a>
+          {% endblock %}
+
+          <div class="card-panel">
+            {% block card %}{% endblock %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>
