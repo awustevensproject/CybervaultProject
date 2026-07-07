@@ -3,3 +3,4 @@ pywebview
 supabase
 python-dotenv
 bcrypt
+zxcvbn

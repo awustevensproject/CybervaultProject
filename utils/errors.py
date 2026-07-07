@@ -10,7 +10,8 @@ SIGNUP_ERRORS = {
     "username_taken": "That username is already taken.",
     "email_taken": "An account with that email already exists.",
     "invalid_username": "Username must be 3–20 characters (letters, numbers, _).",
-    "weak_password": "Password must be at least 10 characters with upper, lower, and a number.",
+    "weak_password": "Password is too weak — at least 10 characters, upper, lower, number, and a zxcvbn score of 3+.",
+    "password_breached": "That password has appeared in a data breach. Please choose a different one.",
     "invalid_email": "Please enter a valid email address (e.g. you@gmail.com).",
     "signup_failed": "Could not create account. Please try again.",
 }

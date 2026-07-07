@@ -45,6 +45,8 @@ Only work if Supabase is not configured in `.env`:
 ## Security
 
 - Bcrypt password hashing
+- zxcvbn password strength scoring (live meter + signup validation)
+- Have I Been Pwned breach check on signup
 - Rate limiting on login and signup
 - Security log at `logs/security.log`
 - Login required for dashboard and admin pages
